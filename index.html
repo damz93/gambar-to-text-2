@@ -69,9 +69,10 @@
         }
 
         button {
-            background-color: #007bff;
+            background-color: rgb(40, 129, 164);
             color: #fff;
             border: none;
+            width: 100%;
             border-radius: 5px;
             padding: 10px 15px;
             cursor: pointer;
@@ -81,7 +82,7 @@
         }
 
         button:hover {
-            background-color: #0056b3;
+            background-color: rgb(21, 72, 92);
         }
 
         textarea {
@@ -111,15 +112,21 @@
         .action-buttons button {
             background-color: seagreen;
         }
+        .action-buttons button:hover {
+            background-color: rgb(33, 99, 62);
+        }
 
         .action-buttons button.copy {
             background-color: goldenrod;
+        }
+        .action-buttons button.copy:hover {
+            background-color: rgb(167, 126, 25);
         }
 
         .footer {
             margin-top: 30px;
             font-size: 14px;
-            color: #777;
+            color: #413e3e;
         }
 
         .footer a {
@@ -137,7 +144,10 @@
     <div class="container">
         <h1>Image2Text | by Dedy A Muzawwir</h1>
         <input type="file" id="imageInput" accept="image/*">
-        <button id="processButton">    <i class="fas fa-spinner fa-spin"></i> Proses OCR
+       
+        <button id="processButton" onclick="processAction()">
+            <i id="spinner" class="fa fa-spinner spinner" aria-hidden="true"></i>
+            Proses OCR
         </button>
         <textarea id="outputText" placeholder="Hasil OCR akan muncul di sini" readonly></textarea>
         <div class="alert" id="alertMessage" style="display: none;"></div>
@@ -148,7 +158,7 @@
         </div>
 
         <div class="footer">
-            <p>dibikin-bikin dengan ganteng oleh <a target="_blank" href="https://damz93.github.io/dedy-a-muzawwir/">D.A.M.Z</a></p>
+            <p>dibikin dengan ganteng oleh <a target="_blank" href="https://damz93.github.io/dedy-a-muzawwir/">D.A.M.Z</a></p>
         </div>
     </div>
 
@@ -214,12 +224,16 @@
 
         // Event listener untuk memulai OCR
         processButton.addEventListener('click', function () {
+            var button = document.getElementById("processButton");
+            var spinner = document.getElementById("spinner");
             if (compressedImage) {
                 outputText.value = "Sedang memproses... Mohon tunggu!";
                 Tesseract.recognize(
                     compressedImage, // Gambar terkompresi
                     'eng', // Bahasa
                 ).then(({ data: { text } }) => {
+                    spinner.classList.remove("fa-spin");
+                    button.disabled = false;
                     outputText.value = text;
                 }).catch((error) => {
                     outputText.value = "";
@@ -247,6 +261,21 @@
             alertMessage.style.display = 'block';
             alertMessage.innerText = "Teks telah disalin ke clipboard!";
         });
+    </script>
+    <script>
+       function processAction() {
+            var button = document.getElementById("processButton");
+            var spinner = document.getElementById("spinner");
+            var checkIcon = document.getElementById("checkIcon");
+
+            // Menambahkan kelas fa-spin untuk memulai animasi putaran
+            spinner.classList.add("fa-spin");
+            checkIcon.classList.remove("show");
+
+            // Menonaktifkan tombol sementara selama proses berlangsung
+            button.disabled = true;
+           
+        }
     </script>
 
 </body>
