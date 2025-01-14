@@ -2,8 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Convert Gambar ke Teks (OCR)</title>
+    <title>Image2Text | by Dedy A Muzawwir</title>
+    <link rel="icon" href="https://w7.pngwing.com/pngs/895/630/png-transparent-d-letter-lowercase-red-letters-and-numbers-icon.png" type="image/x-icon">
+
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@latest/dist/tesseract.min.js"></script>
     <style>
         /* Reset dasar */
@@ -13,11 +17,22 @@
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Arial', sans-serif;
+        /* Container untuk background */
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: url('https://i.pinimg.com/originals/93/ac/a0/93aca07299f1ead0e771eda16210398f.jpg') no-repeat center center fixed;
             background-size: cover;
             filter: blur(8px); /* Efek blur pada background */
+            z-index: -1; /* Pastikan background berada di bawah konten */
+        }
+
+        /* Konten utama */
+        body {
+            font-family: 'Arial', sans-serif;
             color: #333;
             display: flex;
             flex-direction: column;
@@ -25,18 +40,18 @@
             justify-content: center;
             min-height: 100vh;
             padding: 20px;
-            position: relative;
         }
 
-
+        /* Container untuk konten utama */
         .container {
-            background: #fff;
+            background: rgba(255, 255, 255, 0.9); /* Membuat background putih agak transparan */
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             max-width: 500px;
             width: 100%;
             text-align: center;
+            z-index: 1; /* Memastikan konten berada di atas background */
         }
 
         h1 {
@@ -70,8 +85,8 @@
         }
 
         textarea {
-            width: 100%;
-            height: 150px;
+            width: 100%;               /* Lebar 100% dari elemen parent */
+            height: 300px;             /* Tinggi lebih besar (misalnya 300px) */
             margin-top: 20px;
             padding: 10px;
             border-radius: 5px;
@@ -94,11 +109,11 @@
         }
 
         .action-buttons button {
-            background-color: #28a745;
+            background-color: seagreen;
         }
 
         .action-buttons button.copy {
-            background-color: #ffc107;
+            background-color: goldenrod;
         }
 
         .footer {
@@ -118,21 +133,22 @@
     </style>
 </head>
 <body>
-
+    <div class="background-container"></div>
     <div class="container">
-        <h1>Convert Gambar ke Teks</h1>
+        <h1>Image2Text | by Dedy A Muzawwir</h1>
         <input type="file" id="imageInput" accept="image/*">
-        <button id="processButton">Proses OCR</button>
+        <button id="processButton">    <i class="fas fa-spinner fa-spin"></i> Proses OCR
+        </button>
         <textarea id="outputText" placeholder="Hasil OCR akan muncul di sini" readonly></textarea>
         <div class="alert" id="alertMessage" style="display: none;"></div>
 
         <div class="action-buttons">
-            <button id="clearButton">Clear</button>
-            <button id="copyButton" class="copy">Copy</button>
+            <button id="clearButton"><i class="fas fa-backspace"></i> Clear</button>
+            <button id="copyButton" class="copy"><i class="fas fa-copy"></i> Copy</button>
         </div>
 
         <div class="footer">
-            <p>dibikin-bikin oleh <a target="_blank" href="https://damz93.github.io/dedy-a-muzawwir/">D.A.M.Z</a></p>
+            <p>dibikin-bikin dengan ganteng oleh <a target="_blank" href="https://damz93.github.io/dedy-a-muzawwir/">D.A.M.Z</a></p>
         </div>
     </div>
 
