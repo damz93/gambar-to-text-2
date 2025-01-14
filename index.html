@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convert Gambar ke Teks (OCR)</title>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@latest/dist/tesseract.min.js"></script>
+    <style>
+        /* Reset dasar */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: rgb(27, 27, 70);
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            margin-bottom: 20px;
+            padding: 10px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            resize: none;
+            font-size: 14px;
+        }
+
+        .alert {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #e74c3c;
+        }
+
+        .action-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .action-buttons button {
+            background-color: #28a745;
+        }
+
+        .action-buttons button.copy {
+            background-color: #ffc107;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #777;
+        }
+
+        .footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Convert Gambar ke Teks</h1>
+        <input type="file" id="imageInput" accept="image/*">
+        <button id="processButton">Proses OCR</button>
+        <textarea id="outputText" placeholder="Hasil OCR akan muncul di sini" readonly></textarea>
+        <div class="alert" id="alertMessage" style="display: none;"></div>
+
+        <div class="action-buttons">
+            <button id="clearButton">Clear</button>
+            <button id="copyButton" class="copy">Copy</button>
+        </div>
+
+        <div class="footer">
+            <p>dibikin-bikin oleh <a target="_blank" href="https://damz93.github.io/dedy-a-muzawwir/">D.A.M.Z</a></p>
+        </div>
+    </div>
+
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const processButton = document.getElementById('processButton');
+        const outputText = document.getElementById('outputText');
+        const alertMessage = document.getElementById('alertMessage');
+        const clearButton = document.getElementById('clearButton');
+        const copyButton = document.getElementById('copyButton');
+        const canvas = document.createElement('canvas'); // Canvas untuk kompresi
+        const ctx = canvas.getContext('2d');
+        let compressedImage = null;
+
+        // Fungsi untuk kompres gambar
+        function compressImage(file, maxWidth, maxHeight, callback) {
+            const img = new Image();
+            const reader = new FileReader();
+
+            reader.onload = function (event) {
+                img.src = event.target.result;
+            };
+
+            img.onload = function () {
+                let width = img.width;
+                let height = img.height;
+
+                // Skala gambar jika lebih besar dari maxWidth/maxHeight
+                if (width > maxWidth || height > maxHeight) {
+                    if (width > height) {
+                        height *= maxWidth / width;
+                        width = maxWidth;
+                    } else {
+                        width *= maxHeight / height;
+                        height = maxHeight;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                // Gambar ke canvas
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Ekspor sebagai Data URL
+                const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8); // 80% kualitas
+                callback(compressedDataUrl);
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        // Event listener saat file diunggah
+        imageInput.addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                compressImage(file, 800, 800, (compressedDataUrl) => {
+                    compressedImage = compressedDataUrl;
+                    alertMessage.style.display = 'none';
+                });
+            }
+        });
+
+        // Event listener untuk memulai OCR
+        processButton.addEventListener('click', function () {
+            if (compressedImage) {
+                outputText.value = "Sedang memproses... Mohon tunggu!";
+                Tesseract.recognize(
+                    compressedImage, // Gambar terkompresi
+                    'eng', // Bahasa
+                ).then(({ data: { text } }) => {
+                    outputText.value = text;
+                }).catch((error) => {
+                    outputText.value = "";
+                    alertMessage.style.display = 'block';
+                    alertMessage.innerText = "Terjadi kesalahan saat memproses OCR.";
+                    console.error(error);
+                });
+            } else {
+                alertMessage.style.display = 'block';
+                alertMessage.innerText = "Silakan pilih gambar terlebih dahulu.";
+            }
+        });
+
+        // Clear button untuk menghapus hasil OCR
+        clearButton.addEventListener('click', function () {
+            outputText.value = "";
+            alertMessage.style.display = 'none';
+            imageInput.value = ''; // Reset file input
+        });
+
+        // Copy button untuk menyalin hasil OCR
+        copyButton.addEventListener('click', function () {
+            outputText.select();
+            document.execCommand('copy');
+            alertMessage.style.display = 'block';
+            alertMessage.innerText = "Teks telah disalin ke clipboard!";
+        });
+    </script>
+
+</body>
+</html>
